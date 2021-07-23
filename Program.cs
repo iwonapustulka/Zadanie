@@ -6,17 +6,15 @@ using System.Globalization;
 using CsvHelper.Configuration;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 
 namespace Zadanie
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main()
         {
             System.Collections.Generic.List<School> students;
-            Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
             using (var streamReader = File.OpenText("grades.csv"))
             {
                 var config = new CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = ";" };
@@ -25,12 +23,13 @@ namespace Zadanie
                 students = reader.GetRecords<School>().ToList();
 
             }
-            using (StreamWriter sw = new StreamWriter("gradesjson.json"))
-            using (JsonWriter writer = new JsonTextWriter(sw))
-            {
-                serializer.Serialize(writer, students);
-            }
+
             
+            using FileStream stream = File.Create("gradesjson.json");
+            await JsonSerializer.SerializeAsync(stream, students);
+            await stream.DisposeAsync();
+
+
         }
     }
 }
